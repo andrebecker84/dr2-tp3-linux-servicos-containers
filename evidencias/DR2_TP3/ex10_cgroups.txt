@@ -1,0 +1,90 @@
+DR2-TP3 · Exercício 10 — Uso de cgroups e controle de recursos
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:/home/becker/DR2_TP3# systemd-cgtop -b -n 2 -d 1 --depth=2 -m | awk 'f; /^$/{f=1}' | head -n 16
+/                                             72   20.9     2.1G        -        -
+user.slice                                    19    0.4    1014M        -        -
+user.slice/user-1000.slice                     8      -   876.2M        -        -
+non-systemd                                   30    0.5   329.8M        -        -
+user.slice/user-0.slice                       11    0.4   137.7M        -        -
+system.slice                                  22   20.4   116.1M        -        -
+system.slice/unattended-upgrades.service       2      -    18.6M        -        -
+system.slice/systemd-udevd.service             1      -    13.6M        -        -
+init.scope                                     1      -    13.4M        -        -
+system.slice/systemd-journald.service          1      -    10.6M        -        -
+system.slice/packagekit.service                4    0.0    10.4M        -        -
+system.slice/systemd-resolved.service          1      -     4.6M        -        -
+system.slice/systemd-logind.service            1      -     2.4M        -        -
+system.slice/rsyslog.service                   4      -     2.4M        -        -
+system.slice/polkit.service                    4      -     2.3M        -        -
+system.slice/dbus.service                      1      -       2M        -        -
+root@alienwarePC:/home/becker/DR2_TP3# systemctl status tp3-limite --no-pager -n 0 | head -n 9
+● tp3-limite.service - [systemd-run] /bin/sh -c "while :; do :; done"
+     Loaded: loaded (/run/systemd/transient/tp3-limite.service; transient)
+  Transient: yes
+     Active: active (running) since Mon 2026-11-23 21:32:31 -03; 11s ago
+ Invocation: 961af7ca539844f6b5cf8488dc7335d9
+   Main PID: 20998 (sh)
+      Tasks: 1 (limit: 19182)
+     Memory: 208K (max: 64M, available: 63.7M, peak: 1.7M)
+        CPU: 2.284s
+root@alienwarePC:/home/becker/DR2_TP3# cat /sys/fs/cgroup/system.slice/tp3-limite.service/{cpu.max,memory.max,memory.current}
+20000 100000
+67108864
+212992
+root@alienwarePC:/home/becker/DR2_TP3# grep -E "^(usage_usec|nr_throttled|throttled_usec)" /sys/fs/cgroup/system.slice/tp3-limite.service/cpu.stat
+usage_usec 2402861
+nr_throttled 119
+throttled_usec 9503463
+root@alienwarePC:/home/becker/DR2_TP3# cat /proc/$(systemctl show -p MainPID --value tp3-limite)/cgroup
+0::/system.slice/tp3-limite.service
+root@alienwarePC:/home/becker/DR2_TP3# cat /proc/$$/cgroup
+0::/user.slice/user-0.slice/user@0.service/app.slice/app-tmux.slice/tmux-spawn-753b741b-9a31-4b52-b9af-3139a0c22611.scope
+root@alienwarePC:/home/becker/DR2_TP3# systemctl stop tp3-limite
+root@alienwarePC:/home/becker/DR2_TP3# systemd-cgls --no-pager -l | head -n 24
+CGroup /:
+-.slice
+├─user.slice
+│ ├─user-0.slice
+│ │ ├─user@0.service …
+│ │ │ ├─session.slice
+│ │ │ │ └─dbus.service
+│ │ │ │   └─10974 /usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+│ │ │ ├─app.slice
+│ │ │ │ └─app-tmux.slice
+│ │ │ │   └─tmux-spawn-753b741b-9a31-4b52-b9af-3139a0c22611.scope
+│ │ │ │     ├─19199 bash --rcfile /mnt/c/Users/becke/OneDrive/projetos/cienciaDaComputacao/DR2_SistemasOperacionaisComLinuxEpython/linux_tp3/scripts/bashrc_tp3 -i
+│ │ │ │     ├─20943 unshare --pid --fork --mount-proc --uts --kill-child sleep 600
+│ │ │ │     ├─20946 sleep 600
+│ │ │ │     ├─21114 systemd-cgls --no-pager -l
+│ │ │ │     └─21115 head -n 24
+│ │ │ └─init.scope
+│ │ │   ├─404 /usr/lib/systemd/systemd --user
+│ │ │   └─406 (sd-pam)
+│ │ └─session-c3.scope
+│ │   ├─373 login -- root
+│ │   └─426 -bash
+│ └─user-1000.slice
+│   ├─user@1000.service …
+--------------------------------------------------------------------------------
+EVIDÊNCIAS
+- systemd-cgtop mostra cada grupo de controle (cgroup) como uma linha: tarefas,
+  % de CPU, memória e E/S, somando todos os processos do grupo. A raiz (/) é o
+  sistema inteiro; abaixo vêm system.slice (serviços), user.slice (sessões) e
+  init.scope (o PID 1).
+- Para ter um consumo visível, criei com systemd-run um serviço transitório
+  (tp3-limite) com um laço infinito e dois limites: CPUQuota=20% e MemoryMax=64M.
+  No cgtop ele fica em torno de 20% de CPU, e não 100%: o kernel o pausa
+  (throttling) ao estourar a cota.
+- No sysfs do cgroup v2 os limites viram arquivos: cpu.max "20000 100000" (20 ms
+  de CPU a cada 100 ms) e memory.max 67108864 (64 MiB). cpu.stat conta as vezes
+  em que o grupo foi freado (nr_throttled) e o tempo parado.
+- /proc/<PID>/cgroup diz a que grupo cada processo pertence: o laço em
+  /system.slice/tp3-limite.service e o meu shell no user.slice/da sessão.
+- Ordenando por memória (-m), user.slice (sessões), non-systemd (processos do
+  próprio WSL) e system.slice aparecem no topo. systemd-cgls mostra a mesma
+  árvore com os processos de cada grupo.
+- RELAÇÃO COM CONTAINERS: namespaces decidem o que o processo VÊ; cgroups decidem
+  o que ele pode USAR. O docker run --memory/--cpus do Ex. 12 escreve nesses
+  mesmos arquivos (memory.max, cpu.max) para o cgroup do container.

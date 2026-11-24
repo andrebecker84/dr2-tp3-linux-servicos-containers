@@ -1,0 +1,71 @@
+DR2-TP3 · Exercício 6 — Controle do ciclo de vida de serviços
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:~# # Exercício 6 - ciclo de vida de um serviço não crítico: cron
+root@alienwarePC:~# cd /home/becker/DR2_TP3
+root@alienwarePC:/home/becker/DR2_TP3# systemctl show cron -p MainPID,ActiveState,SubState
+ActiveState=active
+SubState=running
+MainPID=16966
+root@alienwarePC:/home/becker/DR2_TP3# systemctl stop cron
+root@alienwarePC:/home/becker/DR2_TP3# systemctl is-active cron; systemctl show cron -p MainPID,ActiveState,SubState
+inactive
+ActiveState=inactive
+SubState=dead
+MainPID=0
+root@alienwarePC:/home/becker/DR2_TP3# pgrep -a cron || echo "nenhum processo cron"
+nenhum processo cron
+root@alienwarePC:/home/becker/DR2_TP3# systemctl start cron
+root@alienwarePC:/home/becker/DR2_TP3# systemctl is-active cron; systemctl show cron -p MainPID,ActiveState,SubState,ActiveEnterTimestamp
+active
+ActiveState=active
+SubState=running
+ActiveEnterTimestamp=Mon 2026-11-23 21:32:02 -03
+MainPID=20030
+root@alienwarePC:/home/becker/DR2_TP3# systemctl restart cron
+root@alienwarePC:/home/becker/DR2_TP3# systemctl show cron -p MainPID,ActiveState,SubState,ActiveEnterTimestamp
+ActiveState=active
+SubState=running
+ActiveEnterTimestamp=Mon 2026-11-23 21:32:03 -03
+MainPID=20049
+root@alienwarePC:/home/becker/DR2_TP3# journalctl -u cron -b --no-pager -n 9 -o short-precise
+Nov 23 21:32:02.503032 alienwarePC cron[20030]: (CRON) INFO (pidfile fd = 3)
+Nov 23 21:32:02.503808 alienwarePC cron[20030]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+Nov 23 21:32:03.076360 alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+Nov 23 21:32:03.076788 alienwarePC systemd[1]: cron.service: Deactivated successfully.
+Nov 23 21:32:03.077106 alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+Nov 23 21:32:03.080575 alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+Nov 23 21:32:03.108589 alienwarePC (cron)[20049]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+Nov 23 21:32:03.111042 alienwarePC cron[20049]: (CRON) INFO (pidfile fd = 3)
+Nov 23 21:32:03.111731 alienwarePC cron[20049]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+root@alienwarePC:/home/becker/DR2_TP3# systemctl status cron --no-pager -n 0
+● cron.service - Regular background program processing daemon
+     Loaded: loaded (/usr/lib/systemd/system/cron.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2026-11-23 21:32:03 -03; 1s ago
+ Invocation: 448cdfc0f16541d2b8c3f76365d6a247
+       Docs: man:cron(8)
+   Main PID: 20049 (cron)
+      Tasks: 1 (limit: 19182)
+     Memory: 472K (peak: 1.7M)
+        CPU: 10ms
+     CGroup: /system.slice/cron.service
+             └─20049 /usr/sbin/cron -f -P
+--------------------------------------------------------------------------------
+SERVIÇO ESCOLHIDO: cron.service
+Não é crítico: parar o cron por alguns segundos só adia tarefas agendadas.
+Serviços como journald, dbus ou logind derrubariam logs, comunicação ou sessões.
+
+EFEITOS OBSERVADOS
+- stop: o systemd mandou SIGTERM ao processo, o estado foi para inactive (dead),
+  MainPID virou 0 e o pgrep não encontrou mais nenhum cron. O journal registrou
+  "Stopping" e "Deactivated successfully".
+- start: um processo NOVO subiu, com outro PID, e o estado voltou a active
+  (running), com novo ActiveEnterTimestamp.
+- restart: equivale a stop + start numa só operação. O PID mudou de novo e o
+  journal mostra a sequência Stopping -> Stopped -> Started. Não há momento em
+  que eu precise digitar dois comandos, o que reduz a janela de indisponibilidade.
+- Ao final o cron fica active (running) e enabled, como estava antes.
+OBSERVAÇÃO: restart reinicia o processo; para só reler a configuração sem matar
+o processo existe systemctl reload, quando o serviço o suporta (o cron não tem
+ExecReload; ele relê o crontab sozinho).

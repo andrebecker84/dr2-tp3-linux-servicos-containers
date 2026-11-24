@@ -1,0 +1,109 @@
+DR2-TP3 · Exercício 3 — Análise cronológica do processo de boot
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:31
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+becker@alienwarePC:~/DR2_TP3$ journalctl --list-boots --no-pager | tail -n 3
+ -2 4d5e47a9593f469e92c16805ca73f352 Wed 2026-11-18 19:14:28 -03 Wed 2026-11-18 22:28:04 -03
+ -1 fda1098a5f0640b58917797f9deb41b6 Thu 2026-11-19 20:32:19 -03 Thu 2026-11-19 21:24:07 -03
+  0 6c64aecddee34a84a8230a54e00024d3 Mon 2026-11-23 20:43:00 -03 Mon 2026-11-23 21:31:38 -03
+becker@alienwarePC:~/DR2_TP3$ journalctl -b --no-pager | wc -l
+1168
+becker@alienwarePC:~/DR2_TP3$ journalctl -b _PID=1 --no-pager -o short-monotonic | head -n 14
+[    6.129680] alienwarePC systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[    6.137342] alienwarePC systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[    6.139514] alienwarePC systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[    6.148352] alienwarePC systemd[1]: Starting systemd-journal-flush.service - Flush Journal to Persistent Storage...
+[    6.149069] alienwarePC systemd[1]: systemd-sysusers.service - Create System Users skipped, no trigger condition checks were met.
+[    6.151975] alienwarePC systemd[1]: Starting systemd-resolved.service - Network Name Resolution...
+[    6.152780] alienwarePC systemd[1]: systemd-timesyncd.service - Network Time Synchronization skipped, unmet condition check ConditionVirtualization=!container
+[    6.152989] alienwarePC systemd[1]: Reached target time-set.target - System Time Set.
+[    6.169757] alienwarePC systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+[    6.189638] alienwarePC systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+[    6.192123] alienwarePC systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
+[    6.192786] alienwarePC systemd[1]: Reached target local-fs.target - Local File Systems.
+[    6.194918] alienwarePC systemd[1]: Listening on systemd-sysext.socket - System Extension Image Management.
+[    6.195632] alienwarePC systemd[1]: apparmor.service - Load AppArmor profiles skipped, unmet condition check ConditionSecurity=apparmor
+becker@alienwarePC:~/DR2_TP3$ journalctl -b --no-pager -o short-monotonic -u systemd-journald -u dbus -u cron -u rsyslog | head -n 16
+[    6.121079] alienwarePC systemd-journald[44]: Configuration file /etc/systemd/journald.conf.d/size.conf is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    6.121111] alienwarePC systemd-journald[44]: Collecting audit messages is disabled.
+[    6.121133] alienwarePC systemd-journald[44]: Journal started
+[    6.121160] alienwarePC systemd-journald[44]: Runtime Journal (/run/log/journal/fdc8557a505d41499cd29645afad6c50) is 8M, max 799.7M, 791.7M free.
+[    6.176164] alienwarePC systemd-journald[44]: Time spent on flushing to /var/log/journal/fdc8557a505d41499cd29645afad6c50 is 4.710ms for 450 entries.
+[    6.176164] alienwarePC systemd-journald[44]: System Journal (/var/log/journal/fdc8557a505d41499cd29645afad6c50) is 98.5M, max 100M, 1.4M free.
+[    6.255755] alienwarePC systemd-journald[44]: Received client request to flush runtime journal.
+[    6.352544] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[    6.354556] alienwarePC systemd[1]: Starting dbus.service - D-Bus System Message Bus...
+[    6.378000] alienwarePC (cron)[108]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[    6.380364] alienwarePC systemd[1]: Starting rsyslog.service - System Logging Service...
+[    6.384290] alienwarePC cron[108]: (CRON) INFO (pidfile fd = 3)
+[    6.387365] alienwarePC cron[108]: (CRON) INFO (Running @reboot jobs)
+[    6.455326] alienwarePC systemd[1]: Started dbus.service - D-Bus System Message Bus.
+[    6.624698] alienwarePC dbus-daemon[109]: [system] Successfully activated service 'org.freedesktop.systemd1'
+[    6.625771] alienwarePC rsyslogd[172]: imuxsock: Acquired UNIX socket '/run/systemd/journal/syslog' (fd 3) from systemd.  [v8.2512.0]
+becker@alienwarePC:~/DR2_TP3$ journalctl -b -p warning --no-pager -o short-monotonic | tail -n 8
+[ 2319.429942] alienwarePC (cron)[11706]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2319.509719] alienwarePC (cron)[11723]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.542391] alienwarePC (cron)[13970]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.649863] alienwarePC (cron)[13987]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2589.244202] alienwarePC unknown: WSL (149 - ) ERROR: operator():325: Failed to connect to port: 8088, family: 2, errno: 111
+[ 2792.178060] alienwarePC (cron)[16947]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2792.774431] alienwarePC (cron)[16966]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2869.848192] alienwarePC unknown: WSL (149 - ) ERROR: operator():325: Failed to connect to port: 8088, family: 2, errno: 111
+becker@alienwarePC:~/DR2_TP3$ systemd-analyze
+Startup finished in 2.153s (userspace) 
+graphical.target reached after 2.152s in userspace.
+becker@alienwarePC:~/DR2_TP3$ systemd-analyze blame --no-pager | head -n 8
+4.639s apt-daily.service
+3.632s apt-daily-upgrade.service
+1.445s landscape-client.service
+ 991ms man-db.service
+ 852ms dev-sdf.device
+ 842ms dev-sdb.device
+ 748ms dev-loop0.device
+ 566ms logrotate.service
+becker@alienwarePC:~/DR2_TP3$ systemd-analyze critical-chain --no-pager
+The time when unit became active or started is printed after the "@" character.
+The time the unit took to start is printed after the "+" character.
+
+graphical.target @2.152s
+└─multi-user.target @2.151s
+  └─unattended-upgrades.service @1.196s
+    └─systemd-logind.service @713ms +148ms
+      └─basic.target @676ms
+        └─sockets.target @676ms
+          └─systemd-logind-varlink.socket @675ms +40us
+            └─sysinit.target @662ms
+              └─systemd-udevd.service @533ms +127ms
+                └─systemd-tmpfiles-setup-dev.service @496ms +19ms
+                  └─systemd-tmpfiles-setup-dev-early.service @424ms +40ms
+                    └─kmod-static-nodes.service @376ms +25ms
+                      └─systemd-journald.socket @350ms +34us
+                        └─-.mount @318ms
+                          └─-.slice @317ms
+becker@alienwarePC:~/DR2_TP3$ mkdir -v ex03_boot && cd ex03_boot
+mkdir: created directory 'ex03_boot'
+becker@alienwarePC:~/DR2_TP3/ex03_boot$ journalctl -b _PID=1 --no-pager -o short-monotonic | head -n 40 > systemd_pid1.txt
+becker@alienwarePC:~/DR2_TP3/ex03_boot$ journalctl -b --no-pager -o short-monotonic -u systemd-journald -u dbus -u cron -u rsyslog > servicos_essenciais.txt
+becker@alienwarePC:~/DR2_TP3/ex03_boot$ journalctl -b -p warning --no-pager -o short-monotonic > avisos_e_erros.txt
+becker@alienwarePC:~/DR2_TP3/ex03_boot$ { systemd-analyze; systemd-analyze blame --no-pager | head -n 15; systemd-analyze critical-chain --no-pager; } > tempos_boot.txt
+becker@alienwarePC:~/DR2_TP3/ex03_boot$ wc -l *.txt && cd ..
+   34 avisos_e_erros.txt
+   73 servicos_essenciais.txt
+   40 systemd_pid1.txt
+   35 tempos_boot.txt
+  182 total
+--------------------------------------------------------------------------------
+TRECHOS RELEVANTES (os trechos completos estão em ex03_boot/)
+- journalctl -b mostra só o boot atual, em ordem de tempo. Com -o short-monotonic
+  cada linha leva os segundos desde o início do kernel: a cronologia fica exata.
+- _PID=1 isola as mensagens do próprio systemd (o processo 1): a versão e as
+  opções de compilação, a detecção de "virtualization wsl", o hostname e a
+  sequência de unidades e targets (sockets, sysinit, basic, multi-user).
+- -u journald, dbus, cron e rsyslog mostram quando cada serviço essencial subiu e
+  em que ordem: o journald antes de todos (é ele que recebe os logs), o D-Bus
+  logo depois (os outros serviços se comunicam por ele) e cron e rsyslog no fim.
+- -p warning filtra prioridade warning ou pior: é ali que aparece a falha do
+  logrotate, a causa do estado "degraded" visto no Ex. 2.
+- systemd-analyze mede o tempo do kernel e do espaço de usuário; blame ordena as
+  unidades pelo tempo que levaram, e critical-chain mostra a cadeia de
+  dependências que atrasou o multi-user.target.

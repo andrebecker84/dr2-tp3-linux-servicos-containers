@@ -1,0 +1,61 @@
+DR2-TP3 · Exercício 4 — Inspeção do boot loader
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:31
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:~# # Exercício 4 - boot loader (shell de root)
+root@alienwarePC:~# bootctl status
+Command 'bootctl' not found, but can be installed with:
+apt install systemd-boot-tools
+root@alienwarePC:~# apt-get install -y -qq systemd-boot-tools 2>&1 | tail -n 2
+Setting up systemd-boot-tools (259.9-0ubuntu0.1) ...
+Processing triggers for man-db (2.13.1-1build1) ...
+root@alienwarePC:~# bootctl status; echo "código de saída: $?"
+Couldn't find EFI system partition. It is recommended to mount it to /boot/ or /efi/.
+Alternatively, use --esp-path= to specify path to mount point.
+System:
+Not booted with EFI
+
+código de saída: 0
+root@alienwarePC:~# ls /sys/firmware/efi
+ls: cannot access '/sys/firmware/efi': No such file or directory
+root@alienwarePC:~# systemd-detect-virt
+wsl
+root@alienwarePC:~# cat /proc/cmdline
+initrd=\initrd.img WSL_ROOT_INIT=1 panic=-1 nr_cpus=10 hv_utils.timesync_implicit=1 printk.devkmsg=on page_reporting.page_reporting_order=5 hv_storvsc.storvsc_max_hw_queues=4 console=hvc0 debug pty.legacy_count=0 WSL_ENABLE_CRASH_DUMP=1
+root@alienwarePC:~# uname -r; cat /proc/version
+6.18.58.1-microsoft-standard-WSL2
+Linux version 6.18.58.1-microsoft-standard-WSL2 (root@6869314ecc53) (gcc (GCC) 13.2.0, GNU ld (GNU Binutils) 2.41) #1 SMP PREEMPT_DYNAMIC Tue Oct 27 00:24:11 UTC 2026
+root@alienwarePC:~# journalctl -k -b --no-pager -o short-monotonic | head -n 4
+[    6.095410] alienwarePC kernel: Linux version 6.18.58.1-microsoft-standard-WSL2 (root@6869314ecc53) (gcc (GCC) 13.2.0, GNU ld (GNU Binutils) 2.41) #1 SMP PREEMPT_DYNAMIC Tue Oct 27 00:24:11 UTC 2026
+[    6.095459] alienwarePC kernel: Command line: initrd=\initrd.img WSL_ROOT_INIT=1 panic=-1 nr_cpus=10 hv_utils.timesync_implicit=1 printk.devkmsg=on page_reporting.page_reporting_order=5 hv_storvsc.storvsc_max_hw_queues=4 console=hvc0 debug pty.legacy_count=0 WSL_ENABLE_CRASH_DUMP=1
+[    6.095475] alienwarePC kernel: KERNEL supported cpus:
+[    6.095487] alienwarePC kernel:   Intel GenuineIntel
+root@alienwarePC:~# systemd-analyze
+Startup finished in 2.153s (userspace) 
+graphical.target reached after 2.152s in userspace.
+root@alienwarePC:~# /mnt/c/Windows/System32/wsl.exe --version | iconv -f utf-16le -t utf-8 | tr -d "\r" | head -n 3
+Versão do WSL: 3.0.5.0
+Versão do kernel: 6.18.58.1-1
+Versão do WSLg: 1.0.79
+root@alienwarePC:~# ls -l /mnt/c/Program\ Files/WSL/tools/kernel /mnt/c/Program\ Files/WSL/tools/initrd.img
+-r-xr-xr-x 1 becker becker  3492096 Oct 29 22:23 '/mnt/c/Program Files/WSL/tools/initrd.img'
+-r-xr-xr-x 1 becker becker 15795200 Oct 27 01:19 '/mnt/c/Program Files/WSL/tools/kernel'
+--------------------------------------------------------------------------------
+EVIDÊNCIAS
+- bootctl não vem instalado no Ubuntu 26.04: está no pacote systemd-boot-tools
+  (o próprio command-not-found sugeriu). Instalei e rodei de novo.
+- bootctl status não encontra a partição de sistema EFI (ESP) e informa, na seção
+  System, "Not booted with EFI": o sistema NÃO foi iniciado por UEFI, então não há
+  loader, entradas de boot nem variáveis EFI para mostrar. Não existe
+  /sys/firmware/efi, que o kernel só cria quando foi iniciado por firmware UEFI.
+- Isso é esperado no WSL2. Não há firmware nem boot loader dentro da VM: o próprio
+  Windows (serviço do WSL, via Hyper-V) carrega o kernel direto na memória da VM
+  utilitária, o mesmo papel que o systemd-boot ou o GRUB teriam.
+  O kernel carregado é o arquivo C:\Program Files\WSL\tools\kernel, com o
+  initrd.img ao lado; a versão bate com uname -r e com o wsl --version.
+- A linha de comando do kernel (/proc/cmdline) é montada pelo WSL: console
+  hvc0, opções do cgroup e initrd=\initrd.img. A primeira linha do journal -k
+  repete a versão e o compilador do kernel.
+- systemd-analyze confirma: mede só "kernel" e "userspace". Num boot UEFI ele
+  mostraria também "firmware" e "loader", que aqui não existem.
+- systemd-detect-virt responde "wsl": o systemd sabe em que ambiente subiu.

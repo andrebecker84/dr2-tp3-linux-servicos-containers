@@ -1,0 +1,40 @@
+DR2-TP3 · Exercício 11 — Operações realizadas no editor vi (Vim 9.1)
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:33
+--------------------------------------------------------------------------------
+EDITOR: vim.basic config_vi.txt (Vim 9.1 do pacote vim). Neste Ubuntu os nomes
+vi e vim apontam para o Neovim pelo sistema de alternativas (ver Ex. 1), por isso
+chamei o binário do Vim pelo nome completo.
+
+COMANDO / ATALHO        MODO      FINALIDADE
+vim.basic config_vi.txt shell     abre (e cria) o arquivo no Vim
+:set number hlsearch    comando   numera as linhas e realça os resultados da busca
+i                       normal    entra no modo de inserção ANTES do cursor; digitei
+                                  as 9 linhas iniciais (seções [servidor] e [log])
+Enter                   inserção  quebra de linha
+Esc                     inserção  volta ao modo normal
+3G                      normal    vai para a linha 3 (navegação por número)
+$                       normal    vai para o fim da linha
+a                       normal    insere DEPOIS do cursor: acrescentei "# apenas local"
+                                  no fim da linha do host
+5G  o                   normal    o abre uma linha NOVA ABAIXO da 5 e entra em
+                                  inserção: "timeout = 30"
+7G  O                   normal    O abre uma linha NOVA ACIMA da 7: o comentário
+                                  "# --- registro de eventos ---" antes de [log]
+3G  yy                  normal    yank: copia a linha 3 inteira (host) para o registro
+10G p                   normal    paste: cola a linha copiada abaixo da linha 10
+                                  (host também na seção [log])
+/linha_temporaria       busca     procura o termo para frente; o cursor vai até ele
+                                  e o hlsearch o realça (n repetiria a busca)
+dd                      normal    apaga a linha inteira onde está o cursor
+u                       normal    undo: desfaz o dd, a linha volta
+Ctrl-r                  normal    redo: refaz o dd, a linha sai de novo
+:%s/127\.0\.0\.1/localhost/g
+                        comando   substitui TODAS as ocorrências: % = todas as linhas,
+                                  g = todas por linha, \. = ponto literal (sem o \ o
+                                  ponto casaria qualquer caractere). Resultado:
+                                  "2 substitutions on 2 lines"
+:w                      comando   grava o arquivo no disco ("written")
+:q                      comando   sai do editor (só aceita se não houver alteração
+                                  pendente; :wq faz os dois, :q! sai descartando)
+
+RESULTADO: config_vi.txt com 11 linhas (cat -n no terminal, depois de sair).

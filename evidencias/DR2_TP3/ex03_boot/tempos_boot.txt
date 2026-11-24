@@ -1,0 +1,35 @@
+Startup finished in 2.153s (userspace) 
+graphical.target reached after 2.152s in userspace.
+4.639s apt-daily.service
+3.632s apt-daily-upgrade.service
+1.445s landscape-client.service
+ 991ms man-db.service
+ 852ms dev-sdf.device
+ 842ms dev-sdb.device
+ 748ms dev-loop0.device
+ 566ms logrotate.service
+ 488ms user@1000.service
+ 376ms netplan-configure.service
+ 295ms user@0.service
+ 251ms rsyslog.service
+ 227ms systemd-udev-trigger.service
+ 148ms systemd-logind.service
+ 143ms systemd-tmpfiles-clean.service
+The time when unit became active or started is printed after the "@" character.
+The time the unit took to start is printed after the "+" character.
+
+graphical.target @2.152s
+└─multi-user.target @2.151s
+  └─unattended-upgrades.service @1.196s
+    └─systemd-logind.service @713ms +148ms
+      └─basic.target @676ms
+        └─sockets.target @676ms
+          └─systemd-logind-varlink.socket @675ms +40us
+            └─sysinit.target @662ms
+              └─systemd-udevd.service @533ms +127ms
+                └─systemd-tmpfiles-setup-dev.service @496ms +19ms
+                  └─systemd-tmpfiles-setup-dev-early.service @424ms +40ms
+                    └─kmod-static-nodes.service @376ms +25ms
+                      └─systemd-journald.socket @350ms +34us
+                        └─-.mount @318ms
+                          └─-.slice @317ms

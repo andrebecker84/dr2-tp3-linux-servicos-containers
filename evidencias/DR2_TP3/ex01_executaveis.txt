@@ -1,0 +1,54 @@
+DR2-TP3 · Exercício 1 — Programas, comandos e executáveis
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:31
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+becker@alienwarePC:~$ # Exercício 1 - comandos internos, aliases, scripts e binários
+becker@alienwarePC:~$ cd ~/DR2_TP3
+becker@alienwarePC:~/DR2_TP3$ which cd ls gunzip vim
+/usr/bin/ls
+/usr/bin/gunzip
+/usr/bin/vim
+becker@alienwarePC:~/DR2_TP3$ type cd ls gunzip vim
+cd is a shell builtin
+ls is aliased to `ls --color=auto'
+gunzip is /usr/bin/gunzip
+vim is /usr/bin/vim
+becker@alienwarePC:~/DR2_TP3$ type -a ls echo
+ls is aliased to `ls --color=auto'
+ls is /usr/bin/ls
+ls is /bin/ls
+echo is a shell builtin
+echo is /usr/bin/echo
+echo is /bin/echo
+becker@alienwarePC:~/DR2_TP3$ file /usr/bin/ls /usr/bin/gunzip /usr/bin/vim
+/usr/bin/ls:     symbolic link to ../lib/cargo/bin/coreutils/ls
+/usr/bin/gunzip: POSIX shell script, ASCII text executable
+/usr/bin/vim:    symbolic link to /etc/alternatives/vim
+becker@alienwarePC:~/DR2_TP3$ readlink -f /usr/bin/ls /usr/bin/vim
+/usr/lib/cargo/bin/coreutils/ls
+/usr/bin/nvim
+becker@alienwarePC:~/DR2_TP3$ file -L /usr/bin/ls /usr/bin/vim | cut -c1-108
+/usr/bin/ls:  ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib6
+/usr/bin/vim: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib6
+becker@alienwarePC:~/DR2_TP3$ head -n 1 /usr/bin/gunzip
+#!/bin/sh
+--------------------------------------------------------------------------------
+CONCLUSÕES TÉCNICAS
+- cd: COMANDO INTERNO do bash (type: "cd is a shell builtin"). O which não acha
+  nada, porque só procura arquivos no PATH. Precisa ser interno: um processo
+  filho não consegue mudar o diretório atual do shell pai.
+- ls: ALIAS (ls --color=auto, do ~/.bashrc) que aponta para o BINÁRIO /usr/bin/ls.
+  type -a mostra as camadas na ordem em que o shell as procura: alias,
+  builtin/função e, por fim, os arquivos do PATH. /usr/bin/ls é um link para
+  /usr/lib/cargo/bin/coreutils/ls: no Ubuntu 26.04 o coreutils padrão é o
+  uutils, reescrito em Rust. file -L: ELF 64-bit, ligado dinamicamente.
+- gunzip: SCRIPT. O which e o type acham /usr/bin/gunzip, mas o file diz "POSIX
+  shell script" e a primeira linha é o shebang #!/bin/sh: o kernel lê o shebang
+  e executa o interpretador /bin/sh passando o script como argumento.
+- vim: BINÁRIO por trás de dois links simbólicos. /usr/bin/vim -> /etc/alternatives/vim
+  -> /usr/bin/nvim (sistema de alternativas do Debian). O file sem -L só diz
+  "symbolic link"; com -L segue a cadeia até o ELF. Neste Ubuntu, vim abre o
+  Neovim; o Vim original fica em /usr/bin/vim.basic (usado no Ex. 11).
+- echo existe nas duas formas: builtin do bash e /usr/bin/echo. O builtin vence,
+  porque o shell o encontra antes de procurar no PATH.
+ORDEM DE RESOLUÇÃO DO BASH: alias -> palavra reservada -> função -> builtin -> PATH.

@@ -1,0 +1,11 @@
+# configuracao simulada de servidor - TP3
+[servidor]
+host = localhost   # apenas local
+porta = 8080
+modo = desenvolvimento
+timeout = 30
+# --- registro de eventos ---
+[log]
+nivel = debug
+arquivo = /var/log/app.log
+host = localhost   # apenas local

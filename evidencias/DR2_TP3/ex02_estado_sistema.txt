@@ -1,0 +1,76 @@
+DR2-TP3 · Exercício 2 — Estado global do sistema após a inicialização
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:31
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+becker@alienwarePC:~/DR2_TP3$ systemctl status --no-pager | head -n 8
+● alienwarePC
+    State: degraded
+    Units: 378 loaded (incl. loaded aliases)
+     Jobs: 1 queued
+   Failed: 1 units
+    Since: Mon 2026-11-23 20:43:00 -03; 48min ago
+  systemd: 259.9-0ubuntu0.1
+  Tainted: unmerged-bin
+becker@alienwarePC:~/DR2_TP3$ systemctl is-system-running
+degraded
+becker@alienwarePC:~/DR2_TP3$ systemctl --failed --no-pager
+  UNIT              LOAD   ACTIVE SUB    DESCRIPTION     
+● logrotate.service loaded failed failed Rotate log files
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+1 loaded units listed.
+becker@alienwarePC:~/DR2_TP3$ systemctl list-units --type=service --state=running --no-pager --no-legend | wc -l
+13
+becker@alienwarePC:~/DR2_TP3$ systemctl list-units --type=service --all --no-pager --no-legend --plain | awk "{print \$3}" | sort | uniq -c
+      2 activating
+     32 active
+      1 failed
+     80 inactive
+becker@alienwarePC:~/DR2_TP3$ systemctl list-units --type=service --state=inactive --no-pager --no-legend --plain | head -n 8
+apparmor.service                            loaded    inactive dead Load AppArmor profiles
+apport-autoreport.service                   loaded    inactive dead Process error reports when automatic reporting is enabled
+apport.service                              loaded    inactive dead automatic crash report generation
+apt-daily-upgrade.service                   loaded    inactive dead Daily apt upgrade and clean activities
+apt-daily.service                           loaded    inactive dead Daily apt download activities
+connman.service                             not-found inactive dead connman.service
+console-getty.service                       masked    inactive dead console-getty.service
+console-screen.service                      not-found inactive dead console-screen.service
+becker@alienwarePC:~/DR2_TP3$ systemctl list-units --type=service --state=running --no-pager
+  UNIT                        LOAD   ACTIVE SUB     DESCRIPTION                                   
+  cron.service                loaded active running Regular background program processing daemon
+  dbus.service                loaded active running D-Bus System Message Bus
+  getty@tty1.service          loaded active running Getty on tty1
+  packagekit.service          loaded active running PackageKit Daemon
+  polkit.service              loaded active running Authorization Manager
+  rsyslog.service             loaded active running System Logging Service
+  systemd-journald.service    loaded active running Journal Service
+  systemd-logind.service      loaded active running User Login Management
+  systemd-resolved.service    loaded active running Network Name Resolution
+  systemd-udevd.service       loaded active running Rule-based Manager for Device Events and Files
+  unattended-upgrades.service loaded active running Unattended Upgrades Shutdown
+  user@0.service              loaded active running User Manager for UID 0
+  user@1000.service           loaded active running User Manager for UID 1000
+
+Legend: LOAD   → Reflects whether the unit definition was properly loaded.
+        ACTIVE → The high-level unit activation state, i.e. generalization of SUB.
+        SUB    → The low-level unit activation state, values depend on unit type.
+
+13 loaded units listed.
+--------------------------------------------------------------------------------
+EVIDÊNCIAS
+- systemctl status (sem argumento) mostra o estado do gerenciador inteiro: State,
+  número de jobs e de unidades com falha, e a árvore de cgroups com cada serviço
+  e seus processos. O estado global é "degraded".
+- "degraded" não quer dizer parado: o boot terminou e os serviços essenciais
+  estão rodando, mas há unidade com falha. systemctl --failed aponta: logrotate.service.
+- Serviços ATIVOS (running): 13
+  (cron, dbus, journald, logind, resolved, udevd, rsyslog, entre outros).
+- Serviços INATIVOS: 80 unidades carregadas mas paradas. Muitos são
+  oneshot (rodam uma vez no boot e terminam, como systemd-tmpfiles-setup) ou
+  dependem de hardware que o WSL não tem.
+- As colunas LOAD/ACTIVE/SUB separam três coisas: o arquivo da unidade foi lido
+  (loaded), o estado geral (active, inactive, failed) e o estado detalhado
+  (running, exited, dead).

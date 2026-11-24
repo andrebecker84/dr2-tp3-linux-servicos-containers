@@ -1,0 +1,73 @@
+[    6.121079] alienwarePC systemd-journald[44]: Configuration file /etc/systemd/journald.conf.d/size.conf is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    6.121111] alienwarePC systemd-journald[44]: Collecting audit messages is disabled.
+[    6.121133] alienwarePC systemd-journald[44]: Journal started
+[    6.121160] alienwarePC systemd-journald[44]: Runtime Journal (/run/log/journal/fdc8557a505d41499cd29645afad6c50) is 8M, max 799.7M, 791.7M free.
+[    6.176164] alienwarePC systemd-journald[44]: Time spent on flushing to /var/log/journal/fdc8557a505d41499cd29645afad6c50 is 4.710ms for 450 entries.
+[    6.176164] alienwarePC systemd-journald[44]: System Journal (/var/log/journal/fdc8557a505d41499cd29645afad6c50) is 98.5M, max 100M, 1.4M free.
+[    6.255755] alienwarePC systemd-journald[44]: Received client request to flush runtime journal.
+[    6.352544] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[    6.354556] alienwarePC systemd[1]: Starting dbus.service - D-Bus System Message Bus...
+[    6.378000] alienwarePC (cron)[108]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[    6.380364] alienwarePC systemd[1]: Starting rsyslog.service - System Logging Service...
+[    6.384290] alienwarePC cron[108]: (CRON) INFO (pidfile fd = 3)
+[    6.387365] alienwarePC cron[108]: (CRON) INFO (Running @reboot jobs)
+[    6.455326] alienwarePC systemd[1]: Started dbus.service - D-Bus System Message Bus.
+[    6.624698] alienwarePC dbus-daemon[109]: [system] Successfully activated service 'org.freedesktop.systemd1'
+[    6.625771] alienwarePC rsyslogd[172]: imuxsock: Acquired UNIX socket '/run/systemd/journal/syslog' (fd 3) from systemd.  [v8.2512.0]
+[    6.625779] alienwarePC rsyslogd[172]: rsyslogd's groupid changed to 102
+[    6.625782] alienwarePC rsyslogd[172]: rsyslogd's userid changed to 102
+[    6.625786] alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172" x-info="https://www.rsyslog.com"] start
+[    6.632217] alienwarePC systemd[1]: Started rsyslog.service - System Logging Service.
+[  264.180393] alienwarePC dbus-daemon[109]: [system] Activating via systemd: service name='org.freedesktop.PackageKit' unit='packagekit.service' requested by ':1.8' (uid=0 pid=807 comm="/usr/bin/gdbus call --system --dest org.freedeskto" label="kernel")
+[  264.280318] alienwarePC dbus-daemon[109]: [system] Activating via systemd: service name='org.freedesktop.PolicyKit1' unit='polkit.service' requested by ':1.10' (uid=0 pid=811 comm="/usr/libexec/packagekitd" label="kernel")
+[  264.366873] alienwarePC dbus-daemon[109]: [system] Successfully activated service 'org.freedesktop.PolicyKit1'
+[  264.373384] alienwarePC dbus-daemon[109]: [system] Successfully activated service 'org.freedesktop.PackageKit'
+[  988.857126] alienwarePC systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 172 (rsyslogd) on client request.
+[  988.869172] alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172" x-info="https://www.rsyslog.com"] rsyslogd was HUPed
+[ 2046.426013] alienwarePC CRON[10584]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+[ 2046.427882] alienwarePC CRON[10586]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+[ 2046.432902] alienwarePC CRON[10584]: pam_unix(cron:session): session closed for user root
+[ 2302.093357] alienwarePC dbus-daemon[109]: [system] Activating via systemd: service name='org.freedesktop.PackageKit' unit='packagekit.service' requested by ':1.21' (uid=0 pid=10918 comm="/usr/bin/gdbus call --system --dest org.freedeskto" label="kernel")
+[ 2302.211343] alienwarePC dbus-daemon[109]: [system] Successfully activated service 'org.freedesktop.PackageKit'
+[ 2319.295193] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2319.295512] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2319.295725] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2319.396603] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2319.429942] alienwarePC (cron)[11706]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2319.433606] alienwarePC cron[11706]: (CRON) INFO (pidfile fd = 3)
+[ 2319.437972] alienwarePC cron[11706]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+[ 2319.480713] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2319.481062] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2319.481371] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2319.485760] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2319.509719] alienwarePC (cron)[11723]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2319.511488] alienwarePC cron[11723]: (CRON) INFO (pidfile fd = 3)
+[ 2319.512308] alienwarePC cron[11723]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+[ 2528.408861] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2528.409181] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2528.409408] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2528.511914] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2528.542391] alienwarePC (cron)[13970]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.544779] alienwarePC cron[13970]: (CRON) INFO (pidfile fd = 3)
+[ 2528.545564] alienwarePC cron[13970]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+[ 2528.597242] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2528.597719] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2528.598160] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2528.601310] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2528.649863] alienwarePC (cron)[13987]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.651668] alienwarePC cron[13987]: (CRON) INFO (pidfile fd = 3)
+[ 2528.652527] alienwarePC cron[13987]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+[ 2791.298435] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2791.299088] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2791.299499] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2792.154510] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2792.178060] alienwarePC (cron)[16947]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2792.180281] alienwarePC cron[16947]: (CRON) INFO (pidfile fd = 3)
+[ 2792.182041] alienwarePC cron[16947]: (CRON) INFO (Skipping @reboot jobs -- not system startup)
+[ 2792.733382] alienwarePC systemd[1]: Stopping cron.service - Regular background program processing daemon...
+[ 2792.733829] alienwarePC systemd[1]: cron.service: Deactivated successfully.
+[ 2792.734092] alienwarePC systemd[1]: Stopped cron.service - Regular background program processing daemon.
+[ 2792.737391] alienwarePC systemd[1]: Started cron.service - Regular background program processing daemon.
+[ 2792.774431] alienwarePC (cron)[16966]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2792.776159] alienwarePC cron[16966]: (CRON) INFO (pidfile fd = 3)
+[ 2792.776895] alienwarePC cron[16966]: (CRON) INFO (Skipping @reboot jobs -- not system startup)

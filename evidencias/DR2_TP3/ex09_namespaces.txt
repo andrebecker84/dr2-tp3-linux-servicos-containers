@@ -1,0 +1,93 @@
+DR2-TP3 · Exercício 9 — Containers via namespaces
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:/home/becker/DR2_TP3# # Exercício 9 - namespaces
+root@alienwarePC:/home/becker/DR2_TP3# lsns
+        NS TYPE   NPROCS   PID USER            COMMAND
+4026531833 net        44     1 root            /sbin/init
+4026531834 time       45     1 root            /sbin/init
+4026531835 cgroup      3     2 root            └─/init
+4026531837 user       45     1 root            /sbin/init
+4026532316 mnt        41     1 root            /sbin/init
+4026532317 uts        41     1 root            /sbin/init
+4026532318 ipc        45     1 root            /sbin/init
+4026532319 pid        45     1 root            /sbin/init
+4026532356 cgroup     42     1 root            /sbin/init
+4026532358 mnt         1    81 systemd-resolve ├─/usr/lib/systemd/systemd-resolved
+4026532359 mnt         1    91 root            ├─/usr/lib/systemd/systemd-udevd
+4026532360 uts         1    91 root            ├─/usr/lib/systemd/systemd-udevd
+4026532428 uts         1   172 syslog          ├─/usr/sbin/rsyslogd -n -iNONE
+4026532429 uts         1   117 root            ├─/usr/lib/systemd/systemd-logind
+4026532437 mnt         1   117 root            ├─/usr/lib/systemd/systemd-logind
+4026532597 net         1   819 polkitd         ├─/usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+4026532665 mnt         1   819 polkitd         ├─/usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+4026532666 uts         1   819 polkitd         └─/usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+root@alienwarePC:/home/becker/DR2_TP3# lsns -t pid -t net -t uts -o NS,TYPE,NPROCS,PID,COMMAND
+        NS TYPE NPROCS   PID COMMAND
+4026531833 net      44     1 /sbin/init
+4026532317 uts      41     1 /sbin/init
+4026532319 pid      45     1 /sbin/init
+4026532360 uts       1    91 ├─/usr/lib/systemd/systemd-udevd
+4026532428 uts       1   172 ├─/usr/sbin/rsyslogd -n -iNONE
+4026532429 uts       1   117 ├─/usr/lib/systemd/systemd-logind
+4026532597 net       1   819 ├─/usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+4026532666 uts       1   819 └─/usr/lib/polkit-1/polkitd --no-debug --log-level=notice
+root@alienwarePC:/home/becker/DR2_TP3# ls -l /proc/$$/ns | awk 'NR>1 {print $9, $10, $11}'
+cgroup -> cgroup:[4026532356]
+ipc -> ipc:[4026532318]
+mnt -> mnt:[4026532316]
+net -> net:[4026531833]
+pid -> pid:[4026532319]
+pid_for_children -> pid:[4026532319]
+time -> time:[4026531834]
+time_for_children -> time:[4026531834]
+user -> user:[4026531837]
+uts -> uts:[4026532317]
+root@alienwarePC:/home/becker/DR2_TP3# readlink /proc/1/ns/pid /proc/$$/ns/pid
+pid:[4026532319]
+pid:[4026532319]
+root@alienwarePC:/home/becker/DR2_TP3# # um "container" feito à mão: novos namespaces PID, UTS, mount e rede
+root@alienwarePC:/home/becker/DR2_TP3# unshare --pid --fork --mount-proc --uts --net bash -c 'hostname tp3-isolado; echo "hostname: $(hostname) | PID deste shell: $$"; ps -ef; ip -br link'
+hostname: tp3-isolado | PID deste shell: 1
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 21:32 pts/7    00:00:00 bash -c hostname tp3-isolado; echo "hostname: $(hostname) 
+root           4       1  0 21:32 pts/7    00:00:00 ps -ef
+lo               DOWN           00:00:00:00:00:00 <LOOPBACK> 
+root@alienwarePC:/home/becker/DR2_TP3# hostname
+alienwarePC
+root@alienwarePC:/home/becker/DR2_TP3# unshare --pid --fork --mount-proc --uts --kill-child sleep 600 &
+[1] 20943
+root@alienwarePC:/home/becker/DR2_TP3# sleep 1; lsns -p "$(pgrep -n -x sleep)" -o NS,TYPE,NPROCS,PID,COMMAND
+        NS TYPE   NPROCS   PID COMMAND
+4026531833 net        47     1 /sbin/init
+4026531834 time       48     1 /sbin/init
+4026531837 user       48     1 /sbin/init
+4026532318 ipc        48     1 /sbin/init
+4026532356 cgroup     45     1 /sbin/init
+4026532393 mnt         2 20943 unshare --pid --fork --mount-proc --uts --kill-child sleep 600
+4026532436 uts         2 20943 unshare --pid --fork --mount-proc --uts --kill-child sleep 600
+4026532596 pid         1 20946 └─sleep 600
+root@alienwarePC:/home/becker/DR2_TP3# kill %1
+--------------------------------------------------------------------------------
+OBSERVAÇÕES TÉCNICAS
+- lsns lista os namespaces vivos: o número (inode), o tipo, quantos processos estão
+  nele e o processo mais antigo (PID e COMMAND). É assim que relaciono namespace e
+  processo. Como root, ele vê os de todos os usuários (21 namespaces).
+- Quase tudo roda nos namespaces do PID 1 (systemd). Os que aparecem com outros
+  PIDs foram criados por serviços que se isolam (systemd-resolved, logind e
+  outros usam PrivateTmp, ProtectSystem etc.: namespaces de mount próprios).
+- /proc/<PID>/ns tem um link por tipo (cgroup, ipc, mnt, net, pid, time, user,
+  uts). Dois processos estão no mesmo namespace quando os links apontam para o
+  mesmo inode: o meu shell e o PID 1 têm o mesmo pid:[...].
+- unshare criou namespaces novos para um bash: dentro dele o hostname é outro
+  (UTS), o bash é o PID 1 e o ps só vê dois processos (PID + /proc remontado), e
+  a rede só tem a interface lo, desligada (NET). Fora dele, o hostname continua
+  alienwarePC. É exatamente o que um runtime de container faz, com mais tipos.
+- O sleep em background aparece no lsns -p com mnt e uts novos (NPROCS 2: o
+  unshare e o sleep) e um pid novo só com o sleep, que é o PID 1 dele; os demais
+  (net, ipc, user, cgroup, time) são iguais aos do sistema: o isolamento é
+  escolhido namespace por namespace. --kill-child faz o sleep morrer junto com
+  o unshare no kill %1 (o PID 1 de um namespace ignora o SIGTERM).
+- No WSL2 cada distribuição já roda em namespaces próprios dentro da mesma VM; por
+  isso os containers do Docker Desktop não aparecem aqui (ver Ex. 12).

@@ -1,0 +1,78 @@
+DR2-TP3 · Exercício 5 — Inspeção detalhada de serviços com systemd
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+becker@alienwarePC:~/DR2_TP3$ # Exercício 5 - inspeção detalhada de um serviço
+becker@alienwarePC:~/DR2_TP3$ systemctl status rsyslog --no-pager -n 8
+● rsyslog.service - System Logging Service
+     Loaded: loaded (/usr/lib/systemd/system/rsyslog.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2026-11-23 20:43:01 -03; 48min ago
+ Invocation: 4def46a33dcb47918024f8586fd03599
+TriggeredBy: ● syslog.socket
+       Docs: man:rsyslogd(8)
+             man:rsyslog.conf(5)
+             https://www.rsyslog.com/doc/
+   Main PID: 172 (rsyslogd)
+      Tasks: 4 (limit: 19182)
+     Memory: 2.4M (peak: 3.3M)
+        CPU: 253ms
+     CGroup: /system.slice/rsyslog.service
+             └─172 /usr/sbin/rsyslogd -n -iNONE
+
+Nov 23 20:43:01 alienwarePC systemd[1]: Starting rsyslog.service - System Logging Service...
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: imuxsock: Acquired UNIX socket '/run/systemd/journal/syslog…2512.0]
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: rsyslogd's groupid changed to 102
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: rsyslogd's userid changed to 102
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172…] start
+Nov 23 20:43:01 alienwarePC systemd[1]: Started rsyslog.service - System Logging Service.
+Nov 23 20:59:23 alienwarePC systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 172 (rsysl…equest.
+Nov 23 20:59:23 alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172…s HUPed
+Hint: Some lines were ellipsized, use -l to show in full.
+becker@alienwarePC:~/DR2_TP3$ systemctl show rsyslog -p MainPID,ActiveState,SubState,ActiveEnterTimestamp,UnitFileState,Restart,TasksCurrent,MemoryCurrent
+ActiveState=active
+SubState=running
+UnitFileState=enabled
+ActiveEnterTimestamp=Mon 2026-11-23 20:43:01 -03
+Restart=on-failure
+MainPID=172
+MemoryCurrent=2580480
+TasksCurrent=4
+becker@alienwarePC:~/DR2_TP3$ ps -o pid,ppid,user,etime,cmd -p "$(systemctl show -p MainPID --value rsyslog)"
+    PID    PPID USER         ELAPSED CMD
+    172       1 syslog         48:58 /usr/sbin/rsyslogd -n -iNONE
+becker@alienwarePC:~/DR2_TP3$ systemctl cat rsyslog --no-pager | grep -E "^(\[|ExecStart|Type|Restart|User|Wants|After)"
+[Unit]
+[Service]
+Type=notify
+ExecStartPre=/usr/lib/rsyslog/reload-apparmor-profile
+ExecStart=/usr/sbin/rsyslogd -n -iNONE
+Restart=on-failure
+[Install]
+becker@alienwarePC:~/DR2_TP3$ journalctl -u rsyslog -b --no-pager -n 6
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: rsyslogd's groupid changed to 102
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: rsyslogd's userid changed to 102
+Nov 23 20:43:01 alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172" x-info="https://www.rsyslog.com"] start
+Nov 23 20:43:01 alienwarePC systemd[1]: Started rsyslog.service - System Logging Service.
+Nov 23 20:59:23 alienwarePC systemd[1]: rsyslog.service: Sent signal SIGHUP to main process 172 (rsyslogd) on client request.
+Nov 23 20:59:23 alienwarePC rsyslogd[172]: [origin software="rsyslogd" swVersion="8.2512.0" x-pid="172" x-info="https://www.rsyslog.com"] rsyslogd was HUPed
+--------------------------------------------------------------------------------
+SERVIÇO ESCOLHIDO: rsyslog.service (System Logging Service)
+Escolhi o rsyslog porque é um serviço clássico de servidor: ele recebe as
+mensagens do journal e as grava em /var/log/syslog e auth.log.
+
+INFORMAÇÕES OBTIDAS
+- PID principal ........: 172 (rsyslogd, filho do PID 1, o systemd)
+- Estado atual .........: active (running) desde Mon 2026-11-23 20:43:01 -03
+- Inicialização ........: enabled (sobe sozinho no boot)
+- Arquivo da unidade ...: /usr/lib/systemd/system/rsyslog.service
+- Política de reinício .: Restart=on-failure
+- Tarefas / memória ....: 4 threads, 2520 KiB, contadas pelo cgroup do serviço
+- Logs recentes ........: as últimas linhas do status vêm do journal (journalctl -u
+  rsyslog): a partida do daemon, a troca para o usuário e o grupo 102 (syslog)
+  e um SIGHUP às 20:59, o logrotate pedindo para reabrir os arquivos de log.
+
+OBSERVAÇÕES
+- O status junta três fontes: o arquivo da unidade (Loaded), o estado mantido
+  pelo systemd (Active, Main PID, Tasks, Memory, CGroup) e o journal (logs).
+- O ps confirma o PID e mostra que o pai (PPID 1) é o systemd: todo serviço é
+  filho do gerenciador, que o vigia e o reinicia conforme Restart=.

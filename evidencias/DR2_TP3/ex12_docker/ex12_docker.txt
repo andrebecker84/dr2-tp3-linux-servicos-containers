@@ -1,0 +1,139 @@
+DR2-TP3 · Exercício 12 — Construção e execução de um container Docker
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:33
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+becker@alienwarePC:~/DR2_TP3/ex11_vi$ # Exercício 12 - construção e execução de um container Docker
+becker@alienwarePC:~/DR2_TP3/ex11_vi$ cd ~/DR2_TP3 && mkdir -v ex12_docker && cd ex12_docker
+mkdir: created directory 'ex12_docker'
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ cat > index.html <<'HTML'
+> <!doctype html>
+> <html lang="pt-BR"><meta charset="utf-8"><title>TP3</title>
+> <h1>DR2-TP3: aplicação mínima num container</h1>
+> <p>Servida pelo httpd do BusyBox.</p>
+> </html>
+> HTML
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ cat > Dockerfile <<'DOCKER'
+> # Aplicação mínima: página estática servida pelo httpd do BusyBox (imagem de ~4 MB)
+> FROM busybox:1.37
+> LABEL org.opencontainers.image.title="tp3-app" org.opencontainers.image.authors="André Luis Becker"
+> WORKDIR /www
+> COPY index.html .
+> EXPOSE 8080
+> # -f: fica em primeiro plano (vira o PID 1 do container); -v: log de cada acesso
+> CMD ["httpd", "-f", "-v", "-p", "8080", "-h", "/www"]
+> DOCKER
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ cat Dockerfile && ls -l
+# Aplicação mínima: página estática servida pelo httpd do BusyBox (imagem de ~4 MB)
+FROM busybox:1.37
+LABEL org.opencontainers.image.title="tp3-app" org.opencontainers.image.authors="André Luis Becker"
+WORKDIR /www
+COPY index.html .
+EXPOSE 8080
+# -f: fica em primeiro plano (vira o PID 1 do container); -v: log de cada acesso
+CMD ["httpd", "-f", "-v", "-p", "8080", "-h", "/www"]
+total 8
+-rw-r--r-- 1 becker becker 386 Nov 23 21:33 Dockerfile
+-rw-r--r-- 1 becker becker 174 Nov 23 21:33 index.html
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker build --progress=plain -t tp3-app:1.0 . 2>&1 | grep -vE "^#[0-9]+ (sha256|DONE|resolve)"
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 425B done
+
+#2 [internal] load metadata for docker.io/library/busybox:1.37
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+
+#4 [internal] load build context
+#4 transferring context: 213B done
+
+#5 [1/3] FROM docker.io/library/busybox:1.37@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+
+#6 [2/3] WORKDIR /www
+#6 CACHED
+
+#7 [3/3] COPY index.html .
+#7 CACHED
+
+#8 exporting to image
+#8 exporting layers done
+#8 exporting manifest sha256:0b0c97011d35b9f9d023c94336f8fd84cce0bd42f3b7f3c163a3f1a213e12e29 0.0s done
+#8 exporting config sha256:e084c5022e40159a74bb5f22d762877493ca89e849df7141ceb21949181c4e9d 0.0s done
+#8 exporting attestation manifest sha256:d3823d0628bbd08a1d270b69324e9bc49cca2bca9ff5b0e2040559b50fb3bf76 0.1s done
+#8 exporting manifest list sha256:ca884a25ef33fabb85d4a46a8ea380d6d2cafcc1284e55030bb8696c530ae6ff
+#8 exporting manifest list sha256:ca884a25ef33fabb85d4a46a8ea380d6d2cafcc1284e55030bb8696c530ae6ff 0.0s done
+#8 naming to docker.io/library/tp3-app:1.0 done
+#8 unpacking to docker.io/library/tp3-app:1.0
+#8 unpacking to docker.io/library/tp3-app:1.0 0.2s done
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker images tp3-app
+                                                                                          i Info →   U  In Use
+IMAGE         ID             DISK USAGE   CONTENT SIZE   EXTRA
+tp3-app:1.0   ca884a25ef33       6.79MB         2.22MB        
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker run -d --name tp3-app -p 8088:8080 --memory 64m --cpus 0.5 tp3-app:1.0
+105b5d58727145fc9769a2904a1d92b8cece4f28ae9e5b9ef240ba334bcf6a73
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker ps --filter name=tp3-app
+CONTAINER ID   IMAGE         COMMAND                  CREATED        STATUS                  PORTS                                         NAMES
+105b5d587271   tp3-app:1.0   "httpd -f -v -p 8080…"   1 second ago   Up Less than a second   0.0.0.0:8088->8080/tcp, [::]:8088->8080/tcp   tp3-app
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ curl -s http://localhost:8088/
+<!doctype html>
+<html lang="pt-BR"><meta charset="utf-8"><title>TP3</title>
+<h1>DR2-TP3: aplicação mínima num container</h1>
+<p>Servida pelo httpd do BusyBox.</p>
+</html>
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker logs tp3-app
+[::ffff:172.17.0.1]:36916: response:200
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker exec tp3-app ps
+PID   USER     TIME  COMMAND
+    1 root      0:00 httpd -f -v -p 8080 -h /www
+    8 root      0:00 ps
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker exec tp3-app hostname
+105b5d587271
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker run --rm tp3-app:1.0 sh -c 'echo "PID $$ | hostname $(hostname) | kernel $(uname -r)"'
+PID 1 | hostname c039029d1c6e | kernel 6.18.58.1-microsoft-standard-WSL2
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker stats --no-stream tp3-app
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT   MEM %     NET I/O         BLOCK I/O   PIDS
+105b5d587271   tp3-app   0.00%     488KiB / 64MiB      0.74%     1.74kB / 956B   0B / 0B     1
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker inspect -f 'PID no host: {{.State.Pid}} | memória: {{.HostConfig.Memory}} | CPUs (nano): {{.HostConfig.NanoCpus}}' tp3-app
+PID no host: 12942 | memória: 67108864 | CPUs (nano): 500000000
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker info --format '{{.OperatingSystem}} | kernel {{.KernelVersion}} | cgroup v{{.CgroupVersion}}'
+Docker Desktop | kernel 6.18.58.1-microsoft-standard-WSL2 | cgroup v2
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ pgrep -a httpd || echo "nenhum httpd visível neste Ubuntu"
+nenhum httpd visível neste Ubuntu
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker stop tp3-app
+tp3-app
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker ps -a --filter name=tp3-app
+CONTAINER ID   IMAGE         COMMAND                  CREATED          STATUS                                PORTS     NAMES
+105b5d587271   tp3-app:1.0   "httpd -f -v -p 8080…"   11 seconds ago   Exited (137) Less than a second ago             tp3-app
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker rm tp3-app
+tp3-app
+becker@alienwarePC:~/DR2_TP3/ex12_docker$ docker ps -a --filter name=tp3-app; docker images tp3-app
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+                                                                                          i Info →   U  In Use
+IMAGE         ID             DISK USAGE   CONTENT SIZE   EXTRA
+tp3-app:1.0   ca884a25ef33       6.79MB         2.22MB        
+--------------------------------------------------------------------------------
+PROCESSO
+1. Dockerfile: imagem base busybox:1.37, WORKDIR /www, COPY da página, EXPOSE 8080
+   e CMD com o httpd em primeiro plano (-f). Em primeiro plano porque o container
+   vive enquanto o seu PID 1 vive.
+2. docker build -t tp3-app:1.0 .: cada instrução virou um passo (camada). O
+   contexto (.) enviado ao daemon tem só Dockerfile e index.html.
+3. docker images: a imagem tp3-app:1.0 tem 6.79MB, quase tudo da base busybox.
+4. docker run -d -p 8088:8080 --memory 64m --cpus 0.5: container em segundo plano,
+   porta 8088 do host ligada à 8080 do container, com limites de cgroup.
+5. docker ps: o container Up, com a porta publicada; curl recebeu a página e
+   docker logs mostrou o acesso registrado pelo httpd (-v).
+6. docker stop / rm: o container parou e foi removido; a imagem fica. Saiu com
+   Exited (137) depois de ~10 s: o httpd é o PID 1 do container e ignora o
+   SIGTERM, então o Docker mandou SIGKILL (128 + 9) ao fim do prazo.
+
+RELAÇÃO COM OS EXERCÍCIOS 9 E 10
+- Dentro do container, o ps mostra o httpd como PID 1 e nada mais: namespace PID.
+  O hostname é o ID curto do container: namespace UTS.
+- O kernel (uname -r) é o mesmo do Ubuntu: container não é VM, compartilha o kernel.
+- docker stats mostra LIMIT 64MiB: o --memory virou o memory.max do cgroup do
+  container, e --cpus 0.5 virou cpu.max, como no Ex. 10.
+- docker info mostra o motor: Docker Desktop, na mesma VM utilitária do WSL2. O
+  container roda em outra distribuição interna da VM, por isso o pgrep não vê o
+  httpd neste Ubuntu e o PID do inspect é o PID no namespace do Docker Desktop.

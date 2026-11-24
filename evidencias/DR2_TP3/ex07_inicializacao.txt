@@ -1,0 +1,82 @@
+DR2-TP3 · Exercício 7 — Configuração de inicialização automática
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:/home/becker/DR2_TP3# # Exercício 7 - inicialização automática de um serviço próprio
+root@alienwarePC:/home/becker/DR2_TP3# cat > /etc/systemd/system/tp3-saudacao.service <<'UNIT'
+> [Unit]
+> Description=TP3 - servico de exemplo
+> After=network.target
+> 
+> [Service]
+> Type=oneshot
+> RemainAfterExit=yes
+> ExecStart=/bin/sh -c 'echo "TP3: tp3-saudacao iniciado em $(date)"'
+> 
+> [Install]
+> WantedBy=multi-user.target
+> UNIT
+root@alienwarePC:/home/becker/DR2_TP3# systemctl daemon-reload
+root@alienwarePC:/home/becker/DR2_TP3# systemctl is-enabled tp3-saudacao; systemctl is-active tp3-saudacao
+disabled
+inactive
+root@alienwarePC:/home/becker/DR2_TP3# systemctl enable --now tp3-saudacao
+Created symlink '/etc/systemd/system/multi-user.target.wants/tp3-saudacao.service' → '/etc/systemd/system/tp3-saudacao.service'.
+root@alienwarePC:/home/becker/DR2_TP3# systemctl is-enabled tp3-saudacao; systemctl is-active tp3-saudacao
+enabled
+active
+root@alienwarePC:/home/becker/DR2_TP3# ls -l /etc/systemd/system/multi-user.target.wants/tp3-saudacao.service
+lrwxrwxrwx 1 root root 40 Nov 23 21:32 /etc/systemd/system/multi-user.target.wants/tp3-saudacao.service -> /etc/systemd/system/tp3-saudacao.service
+root@alienwarePC:/home/becker/DR2_TP3# systemctl disable tp3-saudacao; systemctl is-enabled tp3-saudacao
+Removed '/etc/systemd/system/multi-user.target.wants/tp3-saudacao.service'.
+disabled
+root@alienwarePC:/home/becker/DR2_TP3# systemctl enable tp3-saudacao
+Created symlink '/etc/systemd/system/multi-user.target.wants/tp3-saudacao.service' → '/etc/systemd/system/tp3-saudacao.service'.
+root@alienwarePC:/home/becker/DR2_TP3# sed -i 's/^Description=.*/Description=TP3 - servico de exemplo (v2)/' /etc/systemd/system/tp3-saudacao.service
+root@alienwarePC:/home/becker/DR2_TP3# systemctl status tp3-saudacao --no-pager -n 0 | head -n 4
+Warning: The unit file, source configuration file or drop-ins of tp3-saudacao.service changed on disk. Run 'systemctl daemon-reload' to reload units.
+● tp3-saudacao.service - TP3 - servico de exemplo
+     Loaded: loaded (/etc/systemd/system/tp3-saudacao.service; enabled; preset: enabled)
+     Active: active (exited) since Mon 2026-11-23 21:32:08 -03; 2s ago
+ Invocation: 906955bf0ad343d681b98dd9eed6cf1c
+root@alienwarePC:/home/becker/DR2_TP3# systemctl daemon-reload
+root@alienwarePC:/home/becker/DR2_TP3# systemctl show tp3-saudacao -p Description,NeedDaemonReload,UnitFileState,ActiveState,SubState
+Description=TP3 - servico de exemplo (v2)
+ActiveState=active
+SubState=exited
+UnitFileState=enabled
+NeedDaemonReload=no
+root@alienwarePC:/home/becker/DR2_TP3# systemctl status tp3-saudacao --no-pager -n 3
+● tp3-saudacao.service - TP3 - servico de exemplo (v2)
+     Loaded: loaded (/etc/systemd/system/tp3-saudacao.service; enabled; preset: enabled)
+     Active: active (exited) since Mon 2026-11-23 21:32:08 -03; 3s ago
+ Invocation: 906955bf0ad343d681b98dd9eed6cf1c
+   Main PID: 20263 (code=exited, status=0/SUCCESS)
+   Mem peak: 2.1M
+        CPU: 11ms
+
+Nov 23 21:32:08 alienwarePC systemd[1]: Starting tp3-saudacao.service - TP3 - servico de exemplo...
+Nov 23 21:32:08 alienwarePC sh[20263]: TP3: tp3-saudacao iniciado em Mon Nov 23 21:32:08 -03 2026
+Nov 23 21:32:08 alienwarePC systemd[1]: Finished tp3-saudacao.service - TP3 - servico de exemplo.
+--------------------------------------------------------------------------------
+SERVIÇO: tp3-saudacao.service, unidade criada por mim em /etc/systemd/system
+Criei uma unidade própria para não alterar o boot de um serviço do sistema e para
+ter um caso real em que o daemon-reload é necessário.
+
+O QUE CADA COMANDO FEZ
+- daemon-reload (1ª vez): faz o systemd ler o arquivo novo. Antes dele a unidade
+  não existiria para o gerenciador.
+- enable --now: criou o link multi-user.target.wants/tp3-saudacao.service ->
+  /etc/systemd/system/tp3-saudacao.service (é isso que "habilitar" significa: o
+  target do boot passa a querer o serviço) e já o iniciou (--now).
+- disable: removeu o link; o serviço continuou active, porque disable só mexe no
+  boot seguinte, não no processo atual. enable o recriou.
+- Depois de editar a Description com sed, o status avisou que o arquivo mudou no
+  disco (NeedDaemonReload=yes). O daemon-reload releu a unidade e o aviso sumiu.
+
+ESTADO FINAL DO SERVIÇO
+- UnitFileState ....: enabled (sobe no próximo boot)
+- ActiveState ......: active (exited): oneshot com RemainAfterExit=yes
+  roda o comando uma vez e continua "ativo" sem processo.
+- Description ......: TP3 - servico de exemplo (v2)
+- NeedDaemonReload .: no

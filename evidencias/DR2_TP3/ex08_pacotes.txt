@@ -1,0 +1,116 @@
+DR2-TP3 · Exercício 8 — Gestão de pacotes e cadeia de suprimentos
+André Luis Becker · Ubuntu 26.04.1 LTS (WSL2) · kernel 6.18.58.1-microsoft-standard-WSL2 · 23/11/2026 21:32
+--------------------------------------------------------------------------------
+REGISTRO DA SESSÃO (comandos e saídas, na ordem de execução)
+root@alienwarePC:/home/becker/DR2_TP3# # Exercício 8 - gestão de pacotes com apt
+root@alienwarePC:/home/becker/DR2_TP3# apt update 2>&1 | tail -n 3
+Building dependency tree...
+Reading state information...
+All packages are up to date.
+root@alienwarePC:/home/becker/DR2_TP3# apt search --names-only '^htop' 2>/dev/null
+htop/resolute 3.4.1-5build2 amd64
+  interactive processes viewer
+
+root@alienwarePC:/home/becker/DR2_TP3# apt-cache policy htop
+htop:
+  Installed: (none)
+  Candidate: 3.4.1-5build2
+  Version table:
+     3.4.1-5build2 500
+        500 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages
+root@alienwarePC:/home/becker/DR2_TP3# apt install -y htop
+Installing:                     
+  htop
+
+Suggested packages:
+  lm-sensors  strace
+
+Summary:
+  Upgrading: 0, Installing: 1, Removing: 0, Not Upgrading: 0
+  Download size: 177 kB
+  Space needed: 451 kB / 1016 GB available
+
+Get:1 http://archive.ubuntu.com/ubuntu resolute/main amd64 htop amd64 3.4.1-5build2 [177 kB]
+Fetched 177 kB in 0s (571 kB/s)
+Selecting previously unselected package htop.
+(Reading database ... 52067 files and directories currently installed.)
+Preparing to unpack .../htop_3.4.1-5build2_amd64.deb ...
+Unpacking htop (3.4.1-5build2) ...
+Setting up htop (3.4.1-5build2) ...
+Processing triggers for hicolor-icon-theme (0.18-2build1) ...
+Processing triggers for man-db (2.13.1-1build1) ...
+root@alienwarePC:/home/becker/DR2_TP3# apt show htop 2>/dev/null | cat
+Package: htop
+Version: 3.4.1-5build2
+Priority: optional
+Section: utils
+Origin: Ubuntu
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Original-Maintainer: Daniel Lange <DLange@debian.org>
+Bugs: https://bugs.launchpad.net/ubuntu/+filebug
+Installed-Size: 451 kB
+Depends: libc6 (>= 2.38), libncursesw6 (>= 6), libtinfo6 (>= 6)
+Suggests: lm-sensors, lsof, strace
+Homepage: https://htop.dev/
+Task: cloud-image, cloud-image, server, ubuntu-server-raspi, kubuntu-desktop, kubuntu-full, lubuntu-desktop, ubuntu-mate-core, ubuntu-mate-desktop, ubuntu-budgie-desktop-minimal, ubuntu-budgie-desktop, ubuntu-budgie-desktop-raspi
+Download-Size: 177 kB
+APT-Manual-Installed: yes
+APT-Sources: http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages
+Description: interactive processes viewer
+ Htop is an ncursed-based process viewer similar to top, but it
+ allows one to scroll the list vertically and horizontally to see
+ all processes and their full command lines.
+ .
+ Tasks related to processes (killing, renicing) can be done without
+ entering their PIDs.
+root@alienwarePC:/home/becker/DR2_TP3# apt-cache depends htop
+htop
+  Depends: libc6
+  Depends: libncursesw6
+  Depends: libtinfo6
+  Suggests: lm-sensors
+  Suggests: lsof
+  Suggests: strace
+root@alienwarePC:/home/becker/DR2_TP3# dpkg -s htop | grep -E "^(Status|Version|Installed-Size)"
+Status: install ok installed
+Installed-Size: 440
+Version: 3.4.1-5build2
+root@alienwarePC:/home/becker/DR2_TP3# dpkg -L htop | grep bin/
+/usr/bin/htop
+root@alienwarePC:/home/becker/DR2_TP3# which htop && file -L "$(which htop)" | cut -c1-90
+/usr/bin/htop
+/usr/bin/htop: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked
+root@alienwarePC:/home/becker/DR2_TP3# grep -h -E "^(URIs|Suites|Signed-By)" /etc/apt/sources.list.d/ubuntu.sources | sort -u
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+Suites: resolute resolute-updates resolute-backports
+Suites: resolute-security
+URIs: http://archive.ubuntu.com/ubuntu/
+URIs: http://security.ubuntu.com/ubuntu/
+root@alienwarePC:/home/becker/DR2_TP3# tail -n 5 /var/log/apt/history.log
+
+Start-Date: 2026-11-23  21:32:19
+Commandline: apt install -y htop
+Install: htop:amd64 (3.4.1-5build2)
+End-Date: 2026-11-23  21:32:21
+--------------------------------------------------------------------------------
+PACOTE: htop (visualizador interativo de processos)
+
+INFORMAÇÕES OBTIDAS
+- Versão instalada .....: 3.4.1-5build2
+- Origem ...............: http://archive.ubuntu.com/ubuntu resolute/main
+- Seção / prioridade ...: utils / optional
+- Mantenedor ...........: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+- Dependências .........: libc6 libncursesw6 libtinfo6
+- Tamanho instalado ....: 440 KiB
+- Binário ..............: /usr/bin/htop
+
+CADEIA DE SUPRIMENTOS
+- apt update baixa os índices (InRelease) dos repositórios do ubuntu.sources. Cada
+  índice é assinado; o apt confere a assinatura com a chave de Signed-By
+  (/usr/share/keyrings/ubuntu-archive-keyring.gpg) e recusa índice não assinado.
+- O índice traz o SHA256 de cada .deb: o pacote baixado só é instalado se o hash
+  bater. Assim a origem (repositório oficial) e a integridade ficam garantidas.
+- apt-cache policy mostra de onde vem cada versão e a prioridade (500 = repositório
+  normal); o *** marca a instalada. -updates e -security trazem as correções.
+- O apt resolveu as dependências sozinho; dpkg -L lista os arquivos que o pacote
+  colocou no sistema, e /var/log/apt/history.log guarda quem instalou o quê e quando.

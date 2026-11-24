@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editores e sistema (Windows, OneDrive, macOS)
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Entrega da disciplina: o .docx e o PDF vão pela plataforma do Infnet, não pelo repositório
+~$*
+andre_becker_DR2_TP3.docx
+andre_becker_DR2_TP3.pdf
+
+# Capturas brutas do tmux (as telas em PNG ficam em evidencias/telas)
+evidencias/telas/ansi/
+
+# Instruções locais do assistente
+CLAUDE.md
+
+# Roteiro do vídeo: material pessoal de gravação, fora do repositório
+docs/ROTEIRO_VIDEO.md
+
+# Ferramentas de produção do documento: roteiro de captura, renderizador, gerador e molde ficam locais
+scripts/
+docs/molde/

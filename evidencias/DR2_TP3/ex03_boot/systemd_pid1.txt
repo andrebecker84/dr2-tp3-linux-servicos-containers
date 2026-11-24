@@ -1,0 +1,40 @@
+[    6.129680] alienwarePC systemd[1]: Finished systemd-sysctl.service - Apply Kernel Variables.
+[    6.137342] alienwarePC systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+[    6.139514] alienwarePC systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+[    6.148352] alienwarePC systemd[1]: Starting systemd-journal-flush.service - Flush Journal to Persistent Storage...
+[    6.149069] alienwarePC systemd[1]: systemd-sysusers.service - Create System Users skipped, no trigger condition checks were met.
+[    6.151975] alienwarePC systemd[1]: Starting systemd-resolved.service - Network Name Resolution...
+[    6.152780] alienwarePC systemd[1]: systemd-timesyncd.service - Network Time Synchronization skipped, unmet condition check ConditionVirtualization=!container
+[    6.152989] alienwarePC systemd[1]: Reached target time-set.target - System Time Set.
+[    6.169757] alienwarePC systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+[    6.189638] alienwarePC systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+[    6.192123] alienwarePC systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
+[    6.192786] alienwarePC systemd[1]: Reached target local-fs.target - Local File Systems.
+[    6.194918] alienwarePC systemd[1]: Listening on systemd-sysext.socket - System Extension Image Management.
+[    6.195632] alienwarePC systemd[1]: apparmor.service - Load AppArmor profiles skipped, unmet condition check ConditionSecurity=apparmor
+[    6.197216] alienwarePC systemd[1]: Starting console-setup.service - Set console font and keymap...
+[    6.199247] alienwarePC systemd[1]: Starting netplan-configure.service - Netplan Backend Configuration...
+[    6.203437] alienwarePC systemd[1]: Starting systemd-binfmt.service - Set Up Additional Binary Formats...
+[    6.206821] alienwarePC systemd[1]: Starting systemd-udevd.service - Rule-based Manager for Device Events and Files...
+[    6.223072] alienwarePC systemd[1]: Finished console-setup.service - Set console font and keymap.
+[    6.230669] alienwarePC systemd[1]: Finished systemd-binfmt.service - Set Up Additional Binary Formats.
+[    6.257127] alienwarePC systemd[1]: Finished systemd-journal-flush.service - Flush Journal to Persistent Storage.
+[    6.263860] alienwarePC systemd[1]: Starting systemd-tmpfiles-setup.service - Create System Files and Directories...
+[    6.284136] alienwarePC systemd[1]: Started systemd-resolved.service - Network Name Resolution.
+[    6.284830] alienwarePC systemd[1]: Reached target nss-lookup.target - Host and Network Name Lookups.
+[    6.293882] alienwarePC systemd[1]: Finished systemd-udev-trigger.service - Coldplug All udev Devices.
+[    6.298063] alienwarePC systemd[1]: Finished systemd-tmpfiles-setup.service - Create System Files and Directories.
+[    6.299039] alienwarePC systemd[1]: ldconfig.service - Rebuild Dynamic Linker Cache skipped, no trigger condition checks were met.
+[    6.299119] alienwarePC systemd[1]: systemd-firstboot.service - Initial Setup skipped, unmet condition check ConditionFirstBoot=yes
+[    6.299136] alienwarePC systemd[1]: first-boot-complete.target - First Boot Complete skipped, unmet condition check ConditionFirstBoot=yes
+[    6.299199] alienwarePC systemd[1]: systemd-journal-catalog-update.service - Rebuild Journal Catalog skipped, unmet condition check ConditionNeedsUpdate=/var
+[    6.299236] alienwarePC systemd[1]: systemd-machine-id-commit.service - Save Transient machine-id to Disk skipped, unmet condition check ConditionPathIsMountPoint=/etc/machine-id
+[    6.299266] alienwarePC systemd[1]: systemd-update-done.service - Update is Completed skipped, no trigger condition checks were met.
+[    6.334317] alienwarePC systemd[1]: Started systemd-udevd.service - Rule-based Manager for Device Events and Files.
+[    6.335266] alienwarePC systemd[1]: Reached target sysinit.target - System Initialization.
+[    6.335831] alienwarePC systemd[1]: apport-autoreport.path - Process error reports when automatic reporting is enabled (file watch) skipped, unmet condition check ConditionPathExists=/var/lib/apport/autoreport
+[    6.335887] alienwarePC systemd[1]: apport-autoreport.timer - Process error reports when automatic reporting is enabled (timer based) skipped, unmet condition check ConditionPathExists=/var/lib/apport/autoreport
+[    6.336516] alienwarePC systemd[1]: Started apt-daily.timer - Daily apt download activities.
+[    6.337608] alienwarePC systemd[1]: Started apt-daily-upgrade.timer - Daily apt upgrade and clean activities.
+[    6.338286] alienwarePC systemd[1]: Started dpkg-db-backup.timer - Daily dpkg database backup timer.
+[    6.338883] alienwarePC systemd[1]: Started e2scrub_all.timer - Periodic ext4 Online Metadata Check for All Filesystems.

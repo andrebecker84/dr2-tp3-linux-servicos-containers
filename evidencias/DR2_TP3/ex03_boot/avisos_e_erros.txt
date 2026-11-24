@@ -1,0 +1,34 @@
+[    6.098007] alienwarePC kernel: PCI: Fatal: No config space access function found
+[    6.098294] alienwarePC kernel: PCI: System does not support PCI
+[    6.105137] alienwarePC kernel: device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
+[    6.118914] alienwarePC unknown: WSL (1 - init(docker-desktop)) ERROR: ConfigApplyWindowsLibPath:2200: open /etc/ld.so.conf.d/ld.wsl.conf failed 2
+[    6.118930] alienwarePC unknown: WSL (1 - init(docker-desktop)) WARNING: /usr/share/zoneinfo/America/Sao_Paulo not found. Is the tzdata package installed?
+[    6.119029] alienwarePC kernel: netlink: 'initd-services': attribute type 4 has an invalid length.
+[    6.119038] alienwarePC kernel: virtiofs: Unknown parameter 'negative_dentry_timeout'
+[    6.121079] alienwarePC systemd-journald[44]: Configuration file /etc/systemd/journald.conf.d/size.conf is marked executable. Please remove executable permission bits. Proceeding anyway.
+[    6.119807] alienwarePC systemd-sysctl[64]: Couldn't write '1' to 'kernel/apparmor_restrict_unprivileged_userns', ignoring: No such file or directory
+[    6.119821] alienwarePC systemd-sysctl[64]: Couldn't write '1' to 'kernel/apparmor_restrict_unprivileged_unconfined', ignoring: No such file or directory
+[    6.378000] alienwarePC (cron)[108]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[    7.140215] alienwarePC kernel: vmentry_ctrl unsupported with eVMCS: 0x100000
+[    7.140253] alienwarePC kernel: vmexit_ctrl unsupported with eVMCS: 0x10000000
+[   11.092323] alienwarePC unknown: WSL (143) ERROR: CheckConnection: getaddrinfo() failed: -5
+[   11.336197] alienwarePC unknown: WSL (149 - ) ERROR: operator():325: Failed to connect to port: 8000, family: 2, errno: 111
+[  323.065288] alienwarePC systemd[404]: ubuntu-insights-collect.service: restrict-interfaces: Couldn't find index of network interface 'yes', ignoring: No such device
+[  323.095592] alienwarePC (ubuntu-insights)[6844]: ubuntu-insights-collect.service: Failed to set up mount namespacing: /root/.config: No such file or directory
+[  323.095659] alienwarePC (ubuntu-insights)[6844]: ubuntu-insights-collect.service: Failed at step NAMESPACE spawning /usr/bin/ubuntu-insights: No such file or directory
+[  323.097163] alienwarePC systemd[404]: ubuntu-insights-collect.service: Failed with result 'exit-code'.
+[  323.097434] alienwarePC systemd[404]: Failed to start ubuntu-insights-collect.service - "Collect platform report using Ubuntu Insights while respecting consent".
+[  503.122578] alienwarePC (ubuntu-insights)[10126]: ubuntu-insights-upload.service: Failed to set up mount namespacing: /root/.config: No such file or directory
+[  503.122638] alienwarePC (ubuntu-insights)[10126]: ubuntu-insights-upload.service: Failed at step NAMESPACE spawning /usr/bin/ubuntu-insights: No such file or directory
+[  503.124290] alienwarePC systemd[404]: ubuntu-insights-upload.service: Failed with result 'exit-code'.
+[  503.124577] alienwarePC systemd[404]: Failed to start ubuntu-insights-upload.service - "Upload collected and matured platform reports using Ubuntu Insights while respecting consent".
+[  988.891699] alienwarePC systemd[1]: logrotate.service: Failed with result 'exit-code'.
+[  988.892205] alienwarePC systemd[1]: Failed to start logrotate.service - Rotate log files.
+[ 2319.429942] alienwarePC (cron)[11706]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2319.509719] alienwarePC (cron)[11723]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.542391] alienwarePC (cron)[13970]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2528.649863] alienwarePC (cron)[13987]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2589.244202] alienwarePC unknown: WSL (149 - ) ERROR: operator():325: Failed to connect to port: 8088, family: 2, errno: 111
+[ 2792.178060] alienwarePC (cron)[16947]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2792.774431] alienwarePC (cron)[16966]: cron.service: Referenced but unset environment variable evaluates to an empty string: EXTRA_OPTS
+[ 2869.848192] alienwarePC unknown: WSL (149 - ) ERROR: operator():325: Failed to connect to port: 8088, family: 2, errno: 111
